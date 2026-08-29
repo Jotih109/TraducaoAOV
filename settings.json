@@ -1,0 +1,17 @@
+{
+    "source_lang": "pt",
+    "target_lang": "en",
+    "mic_device_index": 1,
+    "mic_sensitivity": 95,
+    "auto_tts": false,
+    "tts_voice_id": "",
+    "tts_rate": 160,
+    "tts_volume": 0.9,
+    "clipboard_monitor": false,
+    "overlay_font_size": 24,
+    "overlay_opacity": 85,
+    "overlay_bg_color": "#111827",
+    "overlay_text_color": "#38bdf8",
+    "overlay_pt_color": "#9ca3af",
+    "always_on_top": false
+}
