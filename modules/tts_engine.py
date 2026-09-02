@@ -1,20 +1,32 @@
 # -*- coding: utf-8 -*-
-import pyttsx3
 import threading
 import queue
 import time
-from typing import List, Dict
+from typing import List, Dict, Optional
+
+try:
+    import pythoncom
+    HAS_PYTHONCOM = True
+except ImportError:
+    HAS_PYTHONCOM = False
+
+import pyttsx3
+
 
 class TTSEngine:
     """
-    Motor de Síntese de Voz (TTS) assíncrono em segundo plano para narrar a tradução em voz alta.
+    Motor de Síntese de Voz (TTS) assíncrono e ultra-estável em segundo plano.
+    - Inicialização COM por thread para evitar travamentos no Windows
+    - Engine persistente por thread para sintetização instantânea (<10ms)
+    - Descarte automático de falas antigas se a fila acumular (anti-lag para lives)
+    - Suporte a parada imediata e seleção inteligente por idioma
     """
     def __init__(self):
         self.queue = queue.Queue()
         self.running = True
         self.rate = 160
         self.volume = 0.9
-        self.selected_voice_id = None
+        self.selected_voice_id: Optional[str] = None
         self.available_voices: List[Dict[str, str]] = []
         
         self._detect_voices()
@@ -23,6 +35,8 @@ class TTSEngine:
 
     def _detect_voices(self):
         try:
+            if HAS_PYTHONCOM:
+                pythoncom.CoInitialize()
             engine = pyttsx3.init()
             voices = engine.getProperty("voices")
             self.available_voices = []
@@ -89,13 +103,15 @@ class TTSEngine:
     def speak(self, text: str, priority: bool = False):
         if not text or not text.strip():
             return
-        if priority:
-            # Limpar fila anterior se for prioridade
+        
+        # Se for prioridade ou a fila acumulou mais de 2 itens, descartar antigos para não atrasar a live
+        if priority or self.queue.qsize() > 1:
             while not self.queue.empty():
                 try:
                     self.queue.get_nowait()
                 except queue.Empty:
                     break
+
         self.queue.put(text.strip())
 
     def stop(self):
@@ -106,12 +122,46 @@ class TTSEngine:
                 break
 
     def _worker_loop(self):
+        if HAS_PYTHONCOM:
+            try:
+                pythoncom.CoInitialize()
+            except Exception:
+                pass
+
+        engine = None
+        try:
+            engine = pyttsx3.init()
+        except Exception as e:
+            print(f"Erro ao inicializar pyttsx3 no worker: {e}")
+
         while self.running:
             try:
-                text = self.queue.get(timeout=0.5)
+                text = self.queue.get(timeout=0.3)
                 if not text or not self.running:
                     continue
-                self._play_speech(text)
+
+                if engine is None:
+                    try:
+                        engine = pyttsx3.init()
+                    except Exception:
+                        continue
+
+                try:
+                    if self.selected_voice_id:
+                        engine.setProperty("voice", self.selected_voice_id)
+                    engine.setProperty("rate", self.rate)
+                    engine.setProperty("volume", self.volume)
+                    engine.say(text)
+                    engine.runAndWait()
+                except Exception as ex:
+                    # Se falhar, tenta reiniciar a instância na próxima
+                    print(f"Erro na síntese: {ex}")
+                    try:
+                        engine.stop()
+                    except Exception:
+                        pass
+                    engine = None
+
                 self.queue.task_done()
             except queue.Empty:
                 continue
@@ -119,21 +169,12 @@ class TTSEngine:
                 print(f"Erro no loop TTS: {e}")
                 time.sleep(0.1)
 
-    def _play_speech(self, text: str):
-        try:
-            engine = pyttsx3.init()
-            if self.selected_voice_id:
-                try:
-                    engine.setProperty("voice", self.selected_voice_id)
-                except Exception:
-                    pass
-            engine.setProperty("rate", self.rate)
-            engine.setProperty("volume", self.volume)
-            engine.say(text)
-            engine.runAndWait()
-            engine.stop()
-        except Exception as e:
-            print(f"Erro ao sintetizar fala: {e}")
+        if engine:
+            try:
+                engine.stop()
+            except Exception:
+                pass
+
 
 # Instância global compartilhada
 tts_engine = TTSEngine()

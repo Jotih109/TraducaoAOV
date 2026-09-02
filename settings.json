@@ -1,10 +1,10 @@
 {
     "source_lang": "pt",
     "target_lang": "en",
-    "mic_device_index": 1,
+    "mic_device_index": null,
     "mic_sensitivity": 95,
     "auto_tts": false,
-    "tts_voice_id": "",
+    "tts_voice_id": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech\\Voices\\Tokens\\TTS_MS_PT-BR_MARIA_11.0",
     "tts_rate": 160,
     "tts_volume": 0.9,
     "clipboard_monitor": false,
@@ -13,5 +13,14 @@
     "overlay_bg_color": "#111827",
     "overlay_text_color": "#38bdf8",
     "overlay_pt_color": "#9ca3af",
-    "always_on_top": false
+    "overlay_show_original": true,
+    "overlay_click_through": false,
+    "overlay_autohide_seconds": 8,
+    "overlay_pos_x": 1176,
+    "overlay_pos_y": 2,
+    "overlay_width": 750,
+    "overlay_height": 130,
+    "always_on_top": false,
+    "max_speech_duration": 7.0,
+    "highpass_filter": true
 }
