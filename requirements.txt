@@ -1,8 +1,41 @@
-PyQt5>=5.15.0
-sounddevice>=0.4.6
-numpy>=1.20.0
-SpeechRecognition>=3.10.0
-requests>=2.28.0
-deep-translator>=1.11.0
-pyttsx3>=2.90
-pywin32>=306
+# Pipeline STT/MT de baixa latência — Windows / Python 3.10+
+# Instalação:  pip install -r requirements.txt
+# Verificação: python main.py --check
+
+# --- Captura de áudio -------------------------------------------------------
+# WASAPI loopback nativo. Dispensa Stereo Mix e VB-CABLE.
+PyAudioWPatch>=0.2.12.8
+
+# --- Processamento de sinal -------------------------------------------------
+numpy>=1.26
+scipy>=1.11            # filtro FIR polifásico do reamostrador com estado
+
+# --- Detecção de voz --------------------------------------------------------
+onnxruntime>=1.20      # Silero VAD v4/v5; ~0,2 ms por frame de 32 ms em 1 thread
+
+# --- Transcrição ------------------------------------------------------------
+faster-whisper>=1.1
+ctranslate2>=4.5
+
+# --- Interface --------------------------------------------------------------
+PyQt6>=6.6             # PySide6 também serve; o overlay detecta qual está presente
+
+# --- Tradução local (opcional) ---------------------------------------------
+# Necessário apenas para MarianMT em CTranslate2 em vez de tradução na nuvem.
+sentencepiece>=0.2
+
+# --- Aceleração por GPU (opcional) -----------------------------------------
+# O CTranslate2 4.x precisa de CUDA 12 e cuDNN 9. Se não tiver o CUDA Toolkit
+# instalado, estes wheels bastam:
+#   pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
+#
+# ATENÇÃO ao tipo de cómputo: float16 exige compute capability >= 7.0 (Turing,
+# RTX 20xx ou superior). Em placas Pascal (GTX 10xx, cc 6.1) o correcto é
+# int8_float32 — é o que "compute_type": "auto" escolhe sozinho. Confirme com
+# `python main.py --check`.
+
+# --- Conversão de modelos de tradução (só uma vez, offline) -----------------
+# pip install transformers[torch]
+# ct2-transformers-converter --model Helsinki-NLP/opus-mt-en-ROMANCE \
+#     --output_dir models/opus-mt-en-ROMANCE --quantization int8 \
+#     --copy_files source.spm target.spm

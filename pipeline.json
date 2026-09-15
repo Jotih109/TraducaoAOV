@@ -1,0 +1,69 @@
+{
+  "source_lang": "pt",
+  "target_lang": "en",
+  "log_level": "INFO",
+  "audio": {
+    "device_index": null,
+    "read_ms": 20.0,
+    "silence_probe_seconds": 8.0,
+    "silence_floor": 1e-05,
+    "restart_backoff_seconds": 0.5,
+    "resampler_taps_per_phase": 20
+  },
+  "vad": {
+    "model_path": null,
+    "start_probability": 0.5,
+    "end_probability": 0.35,
+    "start_frames": 1,
+    "trailing_ms": 300.0,
+    "preroll_ms": 200.0,
+    "min_speech_ms": 120.0,
+    "num_threads": 1,
+    "provider": "cpu"
+  },
+  "stt": {
+    "model": "small",
+    "device": "auto",
+    "compute_type": "auto",
+    "language": null,
+    "context_seconds": 2.0,
+    "max_window_seconds": 15.0,
+    "min_chunk_seconds": 0.4,
+    "min_infer_interval": 0.25,
+    "beam_size": 1,
+    "prompt_chars": 200,
+    "cpu_threads": 0,
+    "download_root": null
+  },
+  "mt": {
+    "backend": "auto",
+    "model_dir": null,
+    "device": "cpu",
+    "compute_type": "int8",
+    "beam_size": 1,
+    "target_token": "",
+    "max_decoding_length": 256,
+    "interim_debounce_ms": 220.0,
+    "cache_size": 4096,
+    "api": "google",
+    "api_key": "",
+    "request_timeout": 2.5
+  },
+  "overlay": {
+    "font_size": 24,
+    "opacity": 85,
+    "bg_color": "#111827",
+    "text_color": "#38bdf8",
+    "source_color": "#9ca3af",
+    "interim_color": "#64748b",
+    "show_source": true,
+    "click_through": false,
+    "width": 750,
+    "height": 130,
+    "pos_x": 1176,
+    "pos_y": 2,
+    "autohide_seconds": 8,
+    "refresh_ms": 33,
+    "show_metrics": true
+  }
+}
